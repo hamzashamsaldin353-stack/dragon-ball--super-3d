@@ -1,4 +1,4 @@
-name: Build Android APK
+Name: Build Android APK
 
 on:
   push:
@@ -18,7 +18,11 @@ jobs:
           use-dotnet: false
 
       - name: Install export templates
-        run: godot --headless --export-templates-download || true
+        run: |
+          mkdir -p /home/runner/.local/share/godot/export_templates
+          wget -q https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_export_templates.tpz -O /tmp/templates.tpz
+          unzip -q /tmp/templates.tpz -d /tmp/templates
+          mv /tmp/templates/templates /home/runner/.local/share/godot/export_templates/4.6.stable
 
       - name: Setup JDK
         uses: actions/setup-java@v4
