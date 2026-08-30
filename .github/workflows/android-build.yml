@@ -33,26 +33,16 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Generate Debug Keystore & Configure Godot Settings
-        run: |
-          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999
-          mkdir -p /home/runner/.config/godot/
-          echo '[export/android]' > /home/runner/.config/godot/editor_settings-4.4.godot
-          echo 'android_sdk_path = "'$ANDROID_HOME'"' >> /home/runner/.config/godot/editor_settings-4.4.godot
-          echo 'debug_keystore = "'$GITHUB_WORKSPACE'/debug.keystore"' >> /home/runner/.config/godot/editor_settings-4.4.godot
-          echo 'debug_keystore_user = "androiddebugkey"' >> /home/runner/.config/godot/editor_settings-4.4.godot
-          echo 'debug_keystore_pass = "android"' >> /home/runner/.config/godot/editor_settings-4.4.godot
-
       - name: Import project
         run: godot --headless --import || true
 
       - name: Export APK
         run: |
           mkdir -p build
-          godot --headless --export-debug "Android" build/dragon-super-3d.apk
+          godot --headless --export-debug "Android" build/game.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: dragon-super-3d-apk
-          path: build/dragon-super-3d.apk
+          path: build/game.apk
