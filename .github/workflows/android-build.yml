@@ -25,12 +25,6 @@ jobs:
           mkdir -p ~/.android
           keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -keyalg RSA -keysize 2048
 
-      - name: Start ADB server
-        run: |
-          adb kill-server || true
-          adb start-server
-          adb devices
-
       - name: Export game
         id: export
         uses: firebelley/godot-export@v8.0.0
