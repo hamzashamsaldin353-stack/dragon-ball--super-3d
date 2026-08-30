@@ -1,0 +1,44 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.6.0
+          use-dotnet: false
+
+      - name: Install export templates
+        run: godot --headless --export-templates-download || true
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Import project
+        run: godot --headless --import
+
+      - name: Export APK
+        run: |
+          mkdir -p build
+          godot --headless --export-debug "Android" build/game.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dragon-super-3d-apk
+          path: build/game.apk
