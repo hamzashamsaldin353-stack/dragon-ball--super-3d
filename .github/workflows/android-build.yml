@@ -11,19 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Godot
-        uses: chickensoft-games/setup-godot@v2
-        with:
-          version: 4.6.0
-          use-dotnet: false
-
-      - name: Install export templates
-        run: |
-          mkdir -p /home/runner/.local/share/godot/export_templates
-          wget -q https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_export_templates.tpz -O /tmp/templates.tpz
-          unzip -q /tmp/templates.tpz -d /tmp/templates
-          mv /tmp/templates/templates /home/runner/.local/share/godot/export_templates/4.6.stable
-
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
@@ -38,16 +25,19 @@ jobs:
           mkdir -p ~/.android
           keytool -genkeypair -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -keyalg RSA -keysize 2048
 
-      - name: Import project
-        run: godot --headless --import || true
-
-      - name: Export APK
-        run: |
-          mkdir -p build
-          godot --headless --export-debug "Android" build/game.apk
+      - name: Export game
+        id: export
+        uses: firebelley/godot-export@v8.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_export_templates.tpz
+          relative_project_path: ./
+          export_debug: true
+          use_preset_export_path: true
+          presets_to_export: Android
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: dragon-super-3d-apk
-          path: build/game.apk
+          path: ${{ steps.export.outputs.build_directory }}
